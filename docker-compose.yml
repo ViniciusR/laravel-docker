@@ -1,0 +1,64 @@
+version: "3.9"
+services:
+  app:
+    build:
+      args:
+        user: app
+        uid: 1000
+      context: ./app
+      dockerfile: Dockerfile
+    image: app
+    container_name: app
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./app:/app
+    networks:
+      - app-network
+
+  frontend:
+    container_name: frontend
+    image: frontend
+    tty: true
+    ports:
+      - "3000:3000"
+    working_dir: /app
+    build:
+      context: ./app
+      dockerfile: ../docker/frontend/Dockerfile
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+    networks:
+      - app-network
+
+  mysql:
+    container_name: db
+    image: mysql:latest
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: laravel-db
+      MYSQL_ROOT_PASSWORD: laravel
+    volumes:
+      - /.docker/dbdata:/var/lib/mysql
+    networks:
+      - app-network
+      
+  server:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./app:/app
+      - ./docker/nginx:/etc/nginx/conf.d
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
