@@ -1,6 +1,6 @@
-# Simple Laravel app with Docker
+# Simple Laravel + Vue app with Docker
 
-Just for studies purposes.
+Only for studies purposes.
 
 # How to run the project
 - Run the command ./setup.sh
